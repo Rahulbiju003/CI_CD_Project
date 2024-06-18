@@ -1,0 +1,24 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '14.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    npm install
+    npm run build
+  displayName: 'Install dependencies and build'
+
+- script: |
+    CI=true npm test
+  displayName: 'Run tests'
+
+- script: |
+    echo "Build and tests completed successfully"
+  displayName: 'Post-build step'
