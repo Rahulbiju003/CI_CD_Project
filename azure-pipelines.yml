@@ -16,5 +16,9 @@ steps:
   displayName: 'Install dependencies and build'
 
 - script: |
-    npm start
-  displayName: 'Run application'
+    npm test
+  displayName: 'Run tests'
+
+- script: |
+    echo "Build and tests completed successfully"
+  displayName: 'Post-build step'
