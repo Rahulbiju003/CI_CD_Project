@@ -7,7 +7,6 @@ function App() {
       <header className="App-header">
         <h1>Welcome to My React App</h1>
 -       <p>This is a small change.</p>
-+       <p>This is a minor update.</p>
       </header>
     </div>
   );
