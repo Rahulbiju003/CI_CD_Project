@@ -14,7 +14,7 @@ steps:
     npm install
     npm run build
     mkdir -p $(Build.ArtifactStagingDirectory)
-    cp -R path/to/build/output/* $(Build.ArtifactStagingDirectory)
+    cp -R build/* $(Build.ArtifactStagingDirectory)
   displayName: 'Install dependencies, build, and copy output'
 
 - script: |
