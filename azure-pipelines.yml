@@ -22,3 +22,10 @@ steps:
 - script: |
     echo "Build and tests completed successfully"
   displayName: 'Post-build step'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+    MaxArtifactSize: 1
