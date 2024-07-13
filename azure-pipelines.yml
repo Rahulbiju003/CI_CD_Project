@@ -4,33 +4,53 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '14.x'
-  displayName: 'Install Node.js'
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    displayName: 'Build and Test'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '14.x'
+      displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm run build
-    mkdir -p $(Build.ArtifactStagingDirectory)
-    cp -R build/* $(Build.ArtifactStagingDirectory)
-  displayName: 'Install dependencies, build, and copy output'
+    - script: |
+        npm install
+        npm run build
+        mkdir -p $(Build.ArtifactStagingDirectory)
+        cp -R build/* $(Build.ArtifactStagingDirectory)
+      displayName: 'Install dependencies, build, and copy output'
 
-- script: |
-    CI=true npm test
-  displayName: 'Run tests'
+    - script: |
+        CI=true npm test
+      displayName: 'Run tests'
 
-- script: |
-    echo "Build and tests completed successfully"
-  displayName: 'Post-build step'
+    - script: |
+        echo "Build and tests completed successfully"
+      displayName: 'Post-build step'
 
-- script: |
-    ls -la $(Build.ArtifactStagingDirectory)
-  displayName: 'List build output'
+    - script: |
+        ls -la $(Build.ArtifactStagingDirectory)
+      displayName: 'List build output'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: DockerBuildAndPush
+  jobs:
+  - job: DockerBuildAndPush
+    displayName: 'Build and Push Docker Image'
+    steps:
+    - script: |
+        docker build -t myapp:$(Build.BuildId) .
+        docker tag myapp:$(Build.BuildId) myregistry.azurecr.io/myapp:$(Build.BuildId)
+        echo $(DOCKER_PASSWORD) | docker login myregistry.azurecr.io --username $(DOCKER_USERNAME) --password-stdin
+        docker push myregistry.azurecr.io/myapp:$(Build.BuildId)
+      displayName: 'Build and Push Docker Image'
+      env:
+        DOCKER_USERNAME: $(rahulbijum)
+        DOCKER_PASSWORD: $(satellite00123)
