@@ -45,12 +45,12 @@ stages:
   - job: DockerBuildAndPush
     displayName: 'Build and Push Docker Image'
     steps:
-    - script: |
-        docker build -t myapp:$(Build.BuildId) .
-        docker tag myapp:$(Build.BuildId) myregistry.azurecr.io/myapp:$(Build.BuildId)
-        echo $(DOCKER_PASSWORD) | docker login myregistry.azurecr.io --username $(DOCKER_USERNAME) --password-stdin
-        docker push myregistry.azurecr.io/myapp:$(Build.BuildId)
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'DockerConnection'
+        repository: 'myapp'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(Build.BuildId)
       displayName: 'Build and Push Docker Image'
-      env:
-        DOCKER_USERNAME: $(rahulbijum)
-        DOCKER_PASSWORD: $(satellite00123)
