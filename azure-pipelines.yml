@@ -13,7 +13,9 @@ steps:
 - script: |
     npm install
     npm run build
-  displayName: 'Install dependencies and build'
+    mkdir -p $(Build.ArtifactStagingDirectory)
+    cp -R path/to/build/output/* $(Build.ArtifactStagingDirectory)
+  displayName: 'Install dependencies, build, and copy output'
 
 - script: |
     CI=true npm test
@@ -23,9 +25,12 @@ steps:
     echo "Build and tests completed successfully"
   displayName: 'Post-build step'
 
+- script: |
+    ls -la $(Build.ArtifactStagingDirectory)
+  displayName: 'List build output'
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
-    MaxArtifactSize: 1
