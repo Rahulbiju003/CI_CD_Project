@@ -48,9 +48,12 @@ stages:
     - task: Docker@2
       inputs:
         containerRegistry: 'DockerConnection'
-        repository: 'myapp'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: |
-          $(Build.BuildId)
+        command: 'login'
+      displayName: 'Login to Docker Registry'
+
+    - script: |
+        docker build -t myapp:$(Build.BuildId) .
+        docker push myapp:$(Build.BuildId)
       displayName: 'Build and Push Docker Image'
+
+
