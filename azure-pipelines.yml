@@ -5,6 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 stages:
+# Stage 1: Build and Test
 - stage: Build
   jobs:
   - job: BuildAndTest
@@ -42,6 +43,7 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
+# Stage 2: Docker Build and Push
 - stage: DockerBuildAndPush
   dependsOn: Build
   jobs:
@@ -68,3 +70,6 @@ stages:
         docker build -t $(DOCKER_USERNAME)/myapp:$(Build.BuildId) .
         docker push $(DOCKER_USERNAME)/myapp:$(Build.BuildId)
       displayName: 'Build and Push Docker Image'
+      env:
+        DOCKER_USERNAME: $(DOCKER_USERNAME)
+        DOCKER_PASSWORD: $(DOCKER_PASSWORD)
