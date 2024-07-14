@@ -7,8 +7,10 @@ pool:
 stages:
 - stage: Build
   jobs:
-  - job: Build
-    displayName: 'Build and Test'
+  - job: BuildAndTest
+    displayName: 'Build and Test Application'
+    pool:
+      vmImage: 'ubuntu-latest'
     steps:
     - task: NodeTool@0
       inputs:
@@ -41,19 +43,28 @@ stages:
         publishLocation: 'Container'
 
 - stage: DockerBuildAndPush
+  dependsOn: Build
   jobs:
   - job: DockerBuildAndPush
     displayName: 'Build and Push Docker Image'
+    pool:
+      vmImage: 'ubuntu-latest'
     steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(Pipeline.Workspace)'
+      displayName: 'Download Build Artifacts'
+
     - task: Docker@2
       inputs:
         containerRegistry: 'DockerConnection'
         command: 'login'
-      displayName: 'Login to Docker Registry'
+      displayName: 'Login to Docker Hub'
 
     - script: |
-        docker build -t myapp:$(Build.BuildId) .
-        docker push myapp:$(Build.BuildId)
+        docker build -t $(DOCKER_USERNAME)/myapp:$(Build.BuildId) .
+        docker push $(DOCKER_USERNAME)/myapp:$(Build.BuildId)
       displayName: 'Build and Push Docker Image'
-
-
