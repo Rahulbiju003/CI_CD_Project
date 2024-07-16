@@ -11,7 +11,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Task Setting App</h1>
+        <h1>Task Setting:</h1>
         <TaskForm addTask={addTask} />
         <TaskList tasks={tasks} />
       </header>
