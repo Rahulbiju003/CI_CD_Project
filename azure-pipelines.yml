@@ -5,7 +5,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 stages:
-# Stage 1: Build and Test
 - stage: Build
   jobs:
   - job: BuildAndTest
@@ -43,7 +42,6 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
-# Stage 2: Docker Build and Push
 - stage: DockerBuildAndPush
   dependsOn: Build
   jobs:
