@@ -1,71 +1,97 @@
-# Getting Started with Create React App
+# MyApp - CI/CD with Azure Pipelines
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
+This is a React project that implements a CI/CD pipeline using **Azure Pipelines**. The pipeline automates the build, test, and deployment process, ensuring a smooth workflow for continuous integration and delivery.
 
-## Available Scripts
+## Features
+- **Continuous Integration (CI)**:
+  - Installs dependencies
+  - Runs tests
+  - Builds the project
+  - Stores artifacts
+- **Continuous Deployment (CD)**:
+  - Downloads build artifacts
+  - Builds a Docker image
+  - Pushes the image to Docker Hub
 
-In the project directory, you can run:
+## Project Structure
+```
+public/
+src/
+  App.js
+  App.test.js
+  index.js
+Dockerfile
+azure-pipelines.yml
+package.json
+README.md
+```
 
-### `npm start`
+## Azure CI/CD Pipeline Breakdown
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### ** Build Stage**
+- Installs Node.js and dependencies
+- Runs tests
+- Builds the React application
+- Publishes build artifacts
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### ** Docker Build & Push Stage**
+- Downloads build artifacts
+- Builds a Docker image
+- Pushes the image to Docker Hub
 
-### `npm test`
+### **Pipeline Configuration (`azure-pipelines.yml`)**
+```yaml
+trigger:
+- main
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+pool:
+  vmImage: 'ubuntu-latest'
 
-### `npm run build`
+stages:
+- stage: Build
+  jobs:
+  - job: BuildAndTest
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '14.x'
+      displayName: 'Install Node.js'
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    - script: |
+        npm install
+        npm run build
+        mkdir -p $(Build.ArtifactStagingDirectory)
+        cp -R build/* $(Build.ArtifactStagingDirectory)
+      displayName: 'Build Application'
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    - script: |
+        CI=true npm test
+      displayName: 'Run Tests'
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+```
 
-### `npm run eject`
+## 📦 Docker Deployment
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### **Dockerfile**
+```dockerfile
+FROM node:14
+WORKDIR /app
+COPY package.json .
+RUN npm install
+COPY . .
+CMD ["npm", "start"]
+EXPOSE 3000
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# CI_CD_Project
+### **Push to Docker Hub**
+```yaml
+    - script: |
+        docker build -t $(DOCKER_USERNAME)/myapp:$(Build.BuildId) .
+        docker push $(DOCKER_USERNAME)/myapp:$(Build.BuildId)
+      displayName: 'Build and Push Docker Image'
+```
