@@ -1,4 +1,4 @@
-#CI/CD with Azure Pipelines
+# CI/CD with Azure Pipelines
 
 ## Overview
 This is a React project that implements a CI/CD pipeline using **Azure Pipelines**. The pipeline automates the build, test, and deployment process, ensuring a smooth workflow for continuous integration and delivery.
