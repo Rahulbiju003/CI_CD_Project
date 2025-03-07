@@ -14,19 +14,6 @@ This is a React project that implements a CI/CD pipeline using **Azure Pipelines
   - Builds a Docker image
   - Pushes the image to Docker Hub
 
-## Project Structure
-```
-public/
-src/
-  App.js
-  App.test.js
-  index.js
-Dockerfile
-azure-pipelines.yml
-package.json
-README.md
-```
-
 ## Azure CI/CD Pipeline Breakdown
 
 ### ** Build Stage**
